@@ -114,7 +114,6 @@ public class SeaBattleApp {
                     System.out.println("Результат: " + result);
                     if (bs2.isGameOver()) {
                         System.out.println("Поздравляем, " + player1.getUsername() + "! Вы выиграли.");
-                        // Обновление рейтингов: победитель +2, проигравший -2
                         player1.setRating(player1.getRating() + 200);
                         player2.setRating(player2.getRating() - 200);
                         playerService.updatePlayer(player1);

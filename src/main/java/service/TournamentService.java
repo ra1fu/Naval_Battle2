@@ -17,7 +17,7 @@ public class TournamentService {
     private final PlayerService playerService = new PlayerService(); // для обновления рейтингов игроков
 
 
-    private final SecurityManager securityManager = new SecurityManager();
+    private final CustomSecurityManager securityManager = new CustomSecurityManager();
 
     public void createTournament(Player player, String tournamentName) {
         // Проверка прав доступа

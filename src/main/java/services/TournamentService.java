@@ -1,9 +1,10 @@
-package service;
+package services;
 
 import db.dao.TournamentDAO;
 import models.Player;
 import models.Role;
 import models.Tournament;
+import service.CustomSecurityManager;
 
 import java.util.*;
 
@@ -11,18 +12,25 @@ public class TournamentService {
     private final TournamentDAO tournamentDAO = new TournamentDAO();
     private final PlayerService playerService = new PlayerService();
 
-    private final SecurityManager securityManager = new SecurityManager();
+    private final CustomSecurityManager securityManager = new CustomSecurityManager();
 
     public void createTournament(Player player, String tournamentName) {
         if (!securityManager.hasPermission(player, Role.ADMIN)) {
+            System.out.println("У вас недостаточно прав для создания турнира.");
             return;
         }
-
-        Tournament tournament = new Tournament(tournamentName);
+        if (tournamentName == null || tournamentName.trim().isEmpty()) {
+            System.out.println("Название турнира не может быть пустым.");
+            return;
+        }
+        Tournament tournament = new Tournament();
+        tournament.setName(tournamentName);
         tournament.setStartDate(new Date());
-
+        if (tournament.getParticipants() == null) {
+            tournament.setParticipants(new ArrayList<>());
+        }
         tournamentDAO.createTournament(tournament);
-        System.out.println("Турнир создан: " + tournamentName);
+        System.out.println("Турнир создан: " + tournament.getName());
     }
 
     public Tournament getTournamentById(int id) {
