@@ -1,0 +1,137 @@
+package dao;
+
+import db.DBConnection;
+import models.Player;
+import models.Role;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Класс для доступа к данным игроков.
+ */
+public class PlayerDAO {
+    private final Connection connection;
+
+    public PlayerDAO() {
+        // Получаем подключение к БД через паттерн Singleton
+        connection = DBConnection.getInstance().getConnection();
+    }
+
+    /**
+     * Создание нового игрока в базе данных.
+     * @param player объект игрока
+     */
+    public void createPlayer(Player player) {
+        String sql = "INSERT INTO players (username, rating, wins, losses, role) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, player.getUsername());
+            ps.setInt(2, player.getRating());
+            ps.setInt(3, player.getWins());
+            ps.setInt(4, player.getLosses());
+            ps.setString(5, player.getRole().name());
+            ps.executeUpdate();
+
+            // Получение сгенерированного id
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    player.setId(rs.getInt(1));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при создании игрока: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Получение игрока по его id.
+     * @param id идентификатор игрока
+     * @return объект Player или null, если игрок не найден
+     */
+    public Player getPlayerById(int id) {
+        String sql = "SELECT * FROM players WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Воссоздаем объект Player на основе данных из БД
+                    Player player = new Player();
+                    player.setId(rs.getInt("id"));
+                    player.setUsername(rs.getString("username"));
+                    player.setRating(rs.getInt("rating"));
+                    player.setWins(rs.getInt("wins"));
+                    player.setLosses(rs.getInt("losses"));
+                    player.setRole(Role.valueOf(rs.getString("role")));
+                    return player;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении игрока: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Получение списка всех игроков.
+     * @return список объектов Player
+     */
+    public List<Player> getAllPlayers() {
+        List<Player> players = new ArrayList<>();
+        String sql = "SELECT * FROM players";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                Player player = new Player();
+                player.setId(rs.getInt("id"));
+                player.setUsername(rs.getString("username"));
+                player.setRating(rs.getInt("rating"));
+                player.setWins(rs.getInt("wins"));
+                player.setLosses(rs.getInt("losses"));
+                player.setRole(Role.valueOf(rs.getString("role")));
+                players.add(player);
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении списка игроков: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return players;
+    }
+
+    /**
+     * Обновление данных игрока (например, рейтинг, количество побед и поражений).
+     * @param player объект игрока с обновлёнными данными
+     */
+    public void updatePlayer(Player player) {
+        String sql = "UPDATE players SET username = ?, rating = ?, wins = ?, losses = ?, role = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, player.getUsername());
+            ps.setInt(2, player.getRating());
+            ps.setInt(3, player.getWins());
+            ps.setInt(4, player.getLosses());
+            ps.setString(5, player.getRole().name());
+            ps.setInt(6, player.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при обновлении данных игрока: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Удаление игрока по его id.
+     * @param id идентификатор игрока
+     */
+    public void deletePlayer(int id) {
+        String sql = "DELETE FROM players WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при удалении игрока: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
