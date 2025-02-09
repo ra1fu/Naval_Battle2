@@ -14,7 +14,12 @@ public class TournamentDAO {
         connection = DBConnection.getInstance().getConnection();
     }
 
+    /**
+     * Создает турнир и добавляет участников.
+     * @param tournament объект Tournament с заполненными полями и списком участников
+     */
     public void createTournament(Tournament tournament) {
+        // Сохранение основной информации о турнире
         String sqlTournament = "INSERT INTO tournaments (name, start_date) VALUES (?, ?)";
         try (PreparedStatement psTournament = connection.prepareStatement(sqlTournament, Statement.RETURN_GENERATED_KEYS)) {
             psTournament.setString(1, tournament.getName());
@@ -30,6 +35,7 @@ public class TournamentDAO {
             e.printStackTrace();
         }
 
+        // Сохранение участников турнира
         String sqlParticipant = "INSERT INTO tournament_participants (tournament_id, player_id) VALUES (?, ?)";
         try (PreparedStatement psParticipant = connection.prepareStatement(sqlParticipant)) {
             for (Player player : tournament.getParticipants()) {
@@ -44,6 +50,11 @@ public class TournamentDAO {
         }
     }
 
+    /**
+     * Получает турнир по id вместе с участниками.
+     * @param id идентификатор турнира
+     * @return объект Tournament или null, если турнир не найден
+     */
     public Tournament getTournamentById(int id) {
         Tournament tournament = null;
         String sqlTournament = "SELECT * FROM tournaments WHERE id = ?";
@@ -90,7 +101,12 @@ public class TournamentDAO {
         return tournament;
     }
 
+    /**
+     * Обновляет данные турнира, включая участников.
+     * @param tournament объект Tournament с обновленными данными
+     */
     public void updateTournament(Tournament tournament) {
+        // Обновляем основную информацию о турнире
         String sqlTournament = "UPDATE tournaments SET name = ?, start_date = ? WHERE id = ?";
         try (PreparedStatement psTournament = connection.prepareStatement(sqlTournament)) {
             psTournament.setString(1, tournament.getName());
@@ -102,6 +118,7 @@ public class TournamentDAO {
             e.printStackTrace();
         }
 
+        // Для обновления участников можно удалить старые записи и добавить новые
         String sqlDeleteParticipants = "DELETE FROM tournament_participants WHERE tournament_id = ?";
         try (PreparedStatement psDelete = connection.prepareStatement(sqlDeleteParticipants)) {
             psDelete.setInt(1, tournament.getId());
@@ -125,6 +142,10 @@ public class TournamentDAO {
         }
     }
 
+    /**
+     * Удаляет турнир и его участников по id.
+     * @param id идентификатор турнира
+     */
     public void deleteTournament(int id) {
         String sqlDeleteParticipants = "DELETE FROM tournament_participants WHERE tournament_id = ?";
         try (PreparedStatement psDelete = connection.prepareStatement(sqlDeleteParticipants)) {
