@@ -6,28 +6,29 @@ import java.util.List;
 
 import models.Player;
 
-/**
- * Класс, представляющий турнир.
- */
+
 public class Tournament {
     private int id;
     private String name;
     private Date startDate;
     private List<Player> participants;
 
-    // Конструктор без параметров
     public Tournament() {
         this.participants = new ArrayList<>();
     }
 
-    // Основной конструктор
     public Tournament(String name, Date startDate) {
         this.name = name;
         this.startDate = startDate;
         this.participants = new ArrayList<>();
     }
 
-    // Геттеры и сеттеры
+    public Tournament(String name) {
+        this.name = name;
+        this.startDate = new Date();
+        this.participants = new ArrayList<>();
+    }
+
     public int getId() {
         return id;
     }
@@ -60,7 +61,6 @@ public class Tournament {
         this.participants = participants;
     }
 
-    // Метод для добавления участника в турнир
     public void addParticipant(Player player) {
         participants.add(player);
     }
