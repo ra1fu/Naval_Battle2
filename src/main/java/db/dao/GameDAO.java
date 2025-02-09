@@ -17,7 +17,6 @@ public class GameDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, game.getPlayer1().getId());
             ps.setInt(2, game.getPlayer2().getId());
-            // Если победитель еще не определен, устанавливаем NULL
             if (game.getWinner() != null) {
                 ps.setInt(3, game.getWinner().getId());
             } else {
@@ -26,7 +25,6 @@ public class GameDAO {
             ps.setString(4, game.getStatus().name());
             ps.executeUpdate();
 
-            // Получаем сгенерированный идентификатор игры
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     game.setId(rs.getInt(1));
@@ -52,7 +50,6 @@ public class GameDAO {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    // Создаем объекты для первого и второго игроков
                     Player player1 = new Player();
                     player1.setId(rs.getInt("p1_id"));
                     player1.setUsername(rs.getString("p1_username"));
@@ -69,7 +66,6 @@ public class GameDAO {
                     player2.setLosses(rs.getInt("p2_losses"));
                     player2.setRole(Role.valueOf(rs.getString("p2_role")));
 
-                    // Если есть победитель, создаем объект Player для победителя
                     Player winner = null;
                     int winnerId = rs.getInt("winner_id");
                     if (!rs.wasNull()) {
