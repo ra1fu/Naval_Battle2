@@ -1,0 +1,146 @@
+package db.dao;
+
+import db.DBConnection;
+import models.*;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TournamentDAO {
+    private final Connection connection;
+
+    public TournamentDAO() {
+        connection = DBConnection.getInstance().getConnection();
+    }
+
+    public void createTournament(Tournament tournament) {
+        String sqlTournament = "INSERT INTO tournaments (name, start_date) VALUES (?, ?)";
+        try (PreparedStatement psTournament = connection.prepareStatement(sqlTournament, Statement.RETURN_GENERATED_KEYS)) {
+            psTournament.setString(1, tournament.getName());
+            psTournament.setDate(2, new java.sql.Date(tournament.getStartDate().getTime()));
+            psTournament.executeUpdate();
+            try (ResultSet rs = psTournament.getGeneratedKeys()) {
+                if (rs.next()) {
+                    tournament.setId(rs.getInt(1));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при создании турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String sqlParticipant = "INSERT INTO tournament_participants (tournament_id, player_id) VALUES (?, ?)";
+        try (PreparedStatement psParticipant = connection.prepareStatement(sqlParticipant)) {
+            for (Player player : tournament.getParticipants()) {
+                psParticipant.setInt(1, tournament.getId());
+                psParticipant.setInt(2, player.getId());
+                psParticipant.addBatch();
+            }
+            psParticipant.executeBatch();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при добавлении участников турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public Tournament getTournamentById(int id) {
+        Tournament tournament = null;
+        String sqlTournament = "SELECT * FROM tournaments WHERE id = ?";
+        try (PreparedStatement psTournament = connection.prepareStatement(sqlTournament)) {
+            psTournament.setInt(1, id);
+            try (ResultSet rs = psTournament.executeQuery()) {
+                if (rs.next()) {
+                    tournament = new Tournament();
+                    tournament.setId(rs.getInt("id"));
+                    tournament.setName(rs.getString("name"));
+                    tournament.setStartDate(rs.getDate("start_date"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при получении турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        if (tournament != null) {
+            List<Player> participants = new ArrayList<>();
+            String sqlParticipants = "SELECT p.* FROM tournament_participants tp " +
+                    "JOIN players p ON tp.player_id = p.id " +
+                    "WHERE tp.tournament_id = ?";
+            try (PreparedStatement psParticipants = connection.prepareStatement(sqlParticipants)) {
+                psParticipants.setInt(1, tournament.getId());
+                try (ResultSet rs = psParticipants.executeQuery()) {
+                    while (rs.next()) {
+                        Player player = new Player();
+                        player.setId(rs.getInt("id"));
+                        player.setUsername(rs.getString("username"));
+                        player.setRating(rs.getInt("rating"));
+                        player.setWins(rs.getInt("wins"));
+                        player.setLosses(rs.getInt("losses"));
+                        player.setRole(models.Role.valueOf(rs.getString("role")));
+                        participants.add(player);
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Ошибка при получении участников турнира: " + e.getMessage());
+                e.printStackTrace();
+            }
+            tournament.setParticipants(participants);
+        }
+        return tournament;
+    }
+
+    public void updateTournament(Tournament tournament) {
+        String sqlTournament = "UPDATE tournaments SET name = ?, start_date = ? WHERE id = ?";
+        try (PreparedStatement psTournament = connection.prepareStatement(sqlTournament)) {
+            psTournament.setString(1, tournament.getName());
+            psTournament.setDate(2, new java.sql.Date(tournament.getStartDate().getTime()));
+            psTournament.setInt(3, tournament.getId());
+            psTournament.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при обновлении турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String sqlDeleteParticipants = "DELETE FROM tournament_participants WHERE tournament_id = ?";
+        try (PreparedStatement psDelete = connection.prepareStatement(sqlDeleteParticipants)) {
+            psDelete.setInt(1, tournament.getId());
+            psDelete.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при удалении участников турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String sqlInsertParticipant = "INSERT INTO tournament_participants (tournament_id, player_id) VALUES (?, ?)";
+        try (PreparedStatement psInsert = connection.prepareStatement(sqlInsertParticipant)) {
+            for (Player player : tournament.getParticipants()) {
+                psInsert.setInt(1, tournament.getId());
+                psInsert.setInt(2, player.getId());
+                psInsert.addBatch();
+            }
+            psInsert.executeBatch();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при добавлении участников турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteTournament(int id) {
+        String sqlDeleteParticipants = "DELETE FROM tournament_participants WHERE tournament_id = ?";
+        try (PreparedStatement psDelete = connection.prepareStatement(sqlDeleteParticipants)) {
+            psDelete.setInt(1, id);
+            psDelete.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при удалении участников турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+        String sqlTournament = "DELETE FROM tournaments WHERE id = ?";
+        try (PreparedStatement psTournament = connection.prepareStatement(sqlTournament)) {
+            psTournament.setInt(1, id);
+            psTournament.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Ошибка при удалении турнира: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
