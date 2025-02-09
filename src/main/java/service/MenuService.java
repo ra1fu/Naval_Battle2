@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 public class MenuService {
 
-    // Отображаем главное меню и обрабатываем выбор пользователя
     public void printMainMenu() {
         System.out.println("\n=== Sea Battle App ===");
         System.out.println("1. Зарегистрировать игрока");
@@ -16,7 +15,6 @@ public class MenuService {
         System.out.print("Выберите действие: ");
     }
 
-    // Отображаем меню для работы с турнирами
     public void printTournamentMenu() {
         System.out.println("\n=== Меню турниров ===");
         System.out.println("1. Создать турнир");
