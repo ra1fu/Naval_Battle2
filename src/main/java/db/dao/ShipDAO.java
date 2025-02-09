@@ -14,15 +14,10 @@ public class ShipDAO {
         connection = DBConnection.getInstance().getConnection();
     }
 
-    /**
-     * Создает запись о корабле в базе данных.
-     * @param ship объект Ship с заполненными полями
-     */
     public void createShip(Ship ship) {
         String sql = "INSERT INTO ships (category, coordinates, is_sunk) VALUES (?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, ship.getCategory().name());
-            // Преобразуем список координат в строку, разделенную запятыми
             String coordinatesStr = String.join(",", ship.getCoordinates());
             ps.setString(2, coordinatesStr);
             ps.setBoolean(3, ship.isSunk());
@@ -38,11 +33,6 @@ public class ShipDAO {
         }
     }
 
-    /**
-     * Получает корабль по его id.
-     * @param id идентификатор корабля
-     * @return объект Ship или null, если запись не найдена
-     */
     public Ship getShipById(int id) {
         String sql = "SELECT * FROM ships WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -53,7 +43,6 @@ public class ShipDAO {
                     ship.setId(rs.getInt("id"));
                     ship.setCategory(ShipCategory.valueOf(rs.getString("category")));
                     String coordinatesStr = rs.getString("coordinates");
-                    // Преобразуем строку координат в список
                     List<String> coordinates = Arrays.asList(coordinatesStr.split(","));
                     ship.setCoordinates(coordinates);
                     ship.setSunk(rs.getBoolean("is_sunk"));
@@ -67,10 +56,6 @@ public class ShipDAO {
         return null;
     }
 
-    /**
-     * Обновляет данные корабля.
-     * @param ship объект Ship с обновленными данными
-     */
     public void updateShip(Ship ship) {
         String sql = "UPDATE ships SET category = ?, coordinates = ?, is_sunk = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -86,10 +71,6 @@ public class ShipDAO {
         }
     }
 
-    /**
-     * Удаляет корабль по его id.
-     * @param id идентификатор корабля
-     */
     public void deleteShip(int id) {
         String sql = "DELETE FROM ships WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
