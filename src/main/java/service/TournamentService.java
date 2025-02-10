@@ -16,7 +16,6 @@ public class TournamentService {
     private final CustomSecurityManager securityManager = new CustomSecurityManager();
 
     public void createTournament(Player player, String tournamentName) {
-        // Проверка прав доступа
         if (!securityManager.hasPermission(player, Role.ADMIN)) {
             return;
         }

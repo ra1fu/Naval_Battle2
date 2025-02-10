@@ -12,7 +12,6 @@ public class PlayerDAO {
     private final Connection connection;
 
     public PlayerDAO() {
-        // Получаем подключение к БД через паттерн Singleton
         connection = DBConnection.getInstance().getConnection();
     }
 
@@ -37,18 +36,13 @@ public class PlayerDAO {
         }
     }
 
-    /**
-     * Получение игрока по его id.
-     * @param id идентификатор игрока
-     * @return объект Player или null, если игрок не найден
-     */
     public Player getPlayerById(int id) {
         String sql = "SELECT * FROM players WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    // Воссоздаем объект Player на основе данных из БД
+
                     Player player = new Player();
                     player.setId(rs.getInt("id"));
                     player.setUsername(rs.getString("username"));
@@ -66,10 +60,6 @@ public class PlayerDAO {
         return null;
     }
 
-    /**
-     * Получение списка всех игроков.
-     * @return список объектов Player
-     */
     public List<Player> getAllPlayers() {
         List<Player> players = new ArrayList<>();
         String sql = "SELECT * FROM players";
@@ -92,10 +82,7 @@ public class PlayerDAO {
         return players;
     }
 
-    /**
-     * Обновление данных игрока (например, рейтинг, количество побед и поражений).
-     * @param player объект игрока с обновлёнными данными
-     */
+
     public void updatePlayer(Player player) {
         String sql = "UPDATE players SET username = ?, rating = ?, wins = ?, losses = ?, role = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -112,10 +99,6 @@ public class PlayerDAO {
         }
     }
 
-    /**
-     * Удаление игрока по его id.
-     * @param id идентификатор игрока
-     */
     public void deletePlayer(int id) {
         String sql = "DELETE FROM players WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

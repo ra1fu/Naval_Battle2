@@ -8,11 +8,9 @@ public class Player {
     private int losses;
     private Role role;
 
-    // Конструктор без параметров (может понадобиться при десериализации/ORM)
     public Player() {
     }
 
-    // Основной конструктор для создания нового игрока
     public Player(String username, int rating, int wins, int losses, Role role) {
         this.username = username;
         this.rating = rating;
@@ -21,7 +19,6 @@ public class Player {
         this.role = role;
     }
 
-    // Геттеры и сеттеры
     public int getId() {
         return id;
     }
@@ -70,7 +67,6 @@ public class Player {
         this.role = role;
     }
 
-    // Дополнительные методы для обновления статистики
     public void incrementWins() {
         this.wins++;
     }
