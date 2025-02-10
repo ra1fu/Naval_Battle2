@@ -12,17 +12,15 @@ public class TournamentGameService {
 
     private final PlayerService playerService = new PlayerService();
 
-    // Метод для симуляции турнира, где игроки делятся на пары и сражаются друг с другом.
     public void simulateTournament(Tournament tournament, Scanner scanner) {
         List<Player> players = tournament.getParticipants();
 
-        // Проверка, что в турнире есть хотя бы два игрока
         if (players.size() < 2) {
             System.out.println("Для проведения турнира требуется минимум два игрока.");
             return;
         }
 
-        // Разделяем игроков на пары и начинаем проводить матчи
+
         List<Player> winners = new ArrayList<>();
         while (players.size() > 1) {
             List<Player> roundWinners = new ArrayList<>();
@@ -63,18 +61,18 @@ public class TournamentGameService {
                     }
                 }
             }
-            players = roundWinners;  // Обновляем список игроков для следующего раунда
+            players = roundWinners;
         }
 
-        // Победитель турнира
+
         Player tournamentWinner = players.get(0);
         System.out.println("Победитель турнира: " + tournamentWinner.getUsername());
 
-        // Победитель получает бонусный рейтинг
-        tournamentWinner.setRating(tournamentWinner.getRating() + 5);  // Увеличиваем рейтинг победителя на 5
+
+        tournamentWinner.setRating(tournamentWinner.getRating() + 5);
         playerService.updatePlayer(tournamentWinner);
 
-        // Выводим рейтинг победителя
+
         System.out.println("Рейтинг победителя после турнира: " + tournamentWinner.getRating());
     }
 }

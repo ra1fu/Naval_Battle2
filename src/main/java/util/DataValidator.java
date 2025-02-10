@@ -17,7 +17,7 @@ public class DataValidator {
 
     public static boolean isValidRole(String role) {
         try {
-            Role.valueOf(role);  // Проверяем, что строка соответствует одной из ролей в перечислении Role
+            Role.valueOf(role);
             return true;
         } catch (IllegalArgumentException e) {
             System.out.println("Ошибка: Некорректная роль. Должна быть роль 'PLAYER' или 'ADMIN'.");

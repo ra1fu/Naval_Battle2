@@ -5,7 +5,7 @@ import models.Player;
 
 public class SecurityManager {
 
-    // Метод для проверки, имеет ли игрок необходимую роль для выполнения операции
+
     public boolean hasPermission(Player player, Role requiredRole) {
         if (player == null) {
             System.out.println("Ошибка: игрок не найден.");
