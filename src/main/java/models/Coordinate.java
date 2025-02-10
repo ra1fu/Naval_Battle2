@@ -9,7 +9,6 @@ public class Coordinate {
         this.col = col;
     }
 
-    // Геттеры и сеттеры
     public int getRow() {
         return row;
     }
@@ -34,7 +33,6 @@ public class Coordinate {
                 '}';
     }
 
-    // Переопределяем equals и hashCode для корректного сравнения объектов
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

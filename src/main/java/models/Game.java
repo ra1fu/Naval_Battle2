@@ -4,21 +4,18 @@ public class Game {
     private int id;
     private Player player1;
     private Player player2;
-    private Player winner;      // Может быть null, если игра еще не завершена
+    private Player winner;
     private GameStatus status;
 
-    // Конструктор по умолчанию
     public Game() {
     }
 
-    // Конструктор для создания новой игры
     public Game(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
         this.status = GameStatus.ONGOING;
     }
 
-    // Геттеры и сеттеры
     public int getId() {
         return id;
     }

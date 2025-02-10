@@ -12,16 +12,12 @@ public class GameDAO {
         connection = DBConnection.getInstance().getConnection();
     }
 
-    /**
-     * Создает новую игру в базе данных.
-     * @param game объект Game с заполненными player1, player2 и статусом
-     */
+
     public void createGame(Game game) {
         String sql = "INSERT INTO games (player1_id, player2_id, winner_id, status) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, game.getPlayer1().getId());
             ps.setInt(2, game.getPlayer2().getId());
-            // Если победитель еще не определен, устанавливаем NULL
             if (game.getWinner() != null) {
                 ps.setInt(3, game.getWinner().getId());
             } else {
@@ -30,7 +26,6 @@ public class GameDAO {
             ps.setString(4, game.getStatus().name());
             ps.executeUpdate();
 
-            // Получаем сгенерированный идентификатор игры
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     game.setId(rs.getInt(1));
@@ -42,11 +37,6 @@ public class GameDAO {
         }
     }
 
-    /**
-     * Получает игру по её id с использованием JOIN для загрузки данных игроков.
-     * @param id идентификатор игры
-     * @return объект Game или null, если игра не найдена
-     */
     public Game getGameById(int id) {
         String sql = "SELECT g.id, g.status, " +
                 "p1.id AS p1_id, p1.username AS p1_username, p1.rating AS p1_rating, p1.wins AS p1_wins, p1.losses AS p1_losses, p1.role AS p1_role, " +
@@ -61,7 +51,6 @@ public class GameDAO {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    // Создаем объекты для первого и второго игроков
                     Player player1 = new Player();
                     player1.setId(rs.getInt("p1_id"));
                     player1.setUsername(rs.getString("p1_username"));
@@ -78,7 +67,6 @@ public class GameDAO {
                     player2.setLosses(rs.getInt("p2_losses"));
                     player2.setRole(Role.valueOf(rs.getString("p2_role")));
 
-                    // Если есть победитель, создаем объект Player для победителя
                     Player winner = null;
                     int winnerId = rs.getInt("winner_id");
                     if (!rs.wasNull()) {
@@ -108,10 +96,6 @@ public class GameDAO {
         return null;
     }
 
-    /**
-     * Обновляет данные игры в базе данных.
-     * @param game объект Game с обновленными данными
-     */
     public void updateGame(Game game) {
         String sql = "UPDATE games SET player1_id = ?, player2_id = ?, winner_id = ?, status = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -131,10 +115,6 @@ public class GameDAO {
         }
     }
 
-    /**
-     * Удаляет игру по её id.
-     * @param id идентификатор игры
-     */
     public void deleteGame(int id) {
         String sql = "DELETE FROM games WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

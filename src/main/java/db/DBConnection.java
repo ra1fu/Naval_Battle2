@@ -8,7 +8,6 @@ public class DBConnection {
     private static DBConnection instance;
     private Connection connection;
 
-    // Параметры подключения
     private final String URL = "jdbc:postgresql://34.118.52.174:5432/naval";
     private final String USER = "rauan";
     private final String PASSWORD = "0000";
